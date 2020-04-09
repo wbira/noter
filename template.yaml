@@ -3,8 +3,11 @@ Transform: AWS::Serverless-2016-10-31
 
 Globals:
   Function:
-    Timeout: 3
+    Timeout: 29
     Runtime: nodejs12.x
+    Environment:
+      Variables:
+        TABLE_NAME: !Ref NotesTable
 
 Resources:
   ###################################
@@ -21,6 +24,9 @@ Resources:
       FunctionName: 'Create-Notes'
       CodeUri: backend/catalog/create-notes
       Handler: handler.lambdaHandler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref NotesTable
       Events:
         Api:
           Type: Api
@@ -35,6 +41,9 @@ Resources:
       FunctionName: 'Fetch-Notes'
       CodeUri: backend/catalog/fetch-notes
       Handler: handler.lambdaHandler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref NotesTable
       Events:
         Api:
           Type: Api
@@ -43,13 +52,18 @@ Resources:
             Path: '/note'
             Method: GET
 
-Outputs:
-  HelloWorldApi:
-    Description: 'API Gateway endpoint URL for Prod stage for Hello World function'
-    Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/'
-  HelloWorldFunction:
-    Description: 'Hello World Lambda Function ARN'
-    Value: !GetAtt HelloWorldFunction.Arn
-  HelloWorldFunctionIamRole:
-    Description: 'Implicit IAM Role created for Hello World function'
-    Value: !GetAtt HelloWorldFunctionRole.Arn
+  NotesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: 'Notes'
+      BillingMode: 'PAY_PER_REQUEST'
+      AttributeDefinitions:
+        - AttributeName: 'hashKey'
+          AttributeType: 'S'
+        # - AttributeName: 'sortKey'
+        #   AttributeType: 'S'
+      KeySchema:
+        - AttributeName: 'hashKey'
+          KeyType: 'HASH'
+        # - AttributeName: 'sortKey'
+        #   KeyType: 'RANGE'

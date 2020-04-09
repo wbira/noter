@@ -6,7 +6,9 @@
   "repository": "",
   "author": "Waldemar Bira",
   "license": "MIT",
-  "dependencies": {},
+  "dependencies": {
+    "uuid": "^3.3.2"
+  },
   "scripts": {},
   "devDependencies": {}
 }
