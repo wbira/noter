@@ -1,0 +1,12 @@
+{
+  "name": "fetch-notes",
+  "version": "1.0.0",
+  "description": "",
+  "main": "handler.js",
+  "repository": "",
+  "author": "Waldemar Bira",
+  "license": "MIT",
+  "dependencies": {},
+  "scripts": {},
+  "devDependencies": {}
+}
