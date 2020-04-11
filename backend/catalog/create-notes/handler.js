@@ -8,6 +8,9 @@ const TableName = process.env.TABLE_NAME
 function createResponse(body, statusCode) {
     return {
         body,
+        headers: {
+            'Access-Control-Allow-Origin': '*'
+        },
         statusCode
     }
 }

@@ -8,12 +8,16 @@ const TableName = process.env.TABLE_NAME
 function createResponse(body, statusCode) {
     return {
         body,
+        headers: {
+            'Access-Control-Allow-Origin': '*'
+        },
         statusCode
     }
 }
 
 exports.lambdaHandler = async (event, context) => {
     console.log("Event:", event)
+    console.log("Contex:", context)
     const params = {
         TableName,
         KeyConditionExpression: 'hashKey = :hkey',
