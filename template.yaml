@@ -11,12 +11,91 @@ Globals:
 
 Resources:
   ###################################
-  # Catalog microservice
+  # Base stack
   ###################################
   ApiGateway:
     Type: AWS::Serverless::Api
     Properties:
-      StageName: 'dev'
+      StageName: dev
+      Cors:
+        AllowMethods: "'*'"
+        AllowHeaders: "'*'"
+        AllowOrigin: "'*'"
+      Auth:
+        DefaultAuthorizer: CognitoUserPoolAuthorizer
+        AddDefaultAuthorizerToCorsPreflight: False
+        Authorizers:
+          CognitoUserPoolAuthorizer:
+            UserPoolArn: !GetAtt CognitoUserPool.Arn
+
+  ###################################
+  # Account stack
+  ###################################
+
+  CognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: sam_api_gateway_cup_auth_cognito_user_pool
+      LambdaConfig:
+        PreSignUp: !GetAtt PreSignupLambdaFunction.Arn
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+      UsernameAttributes:
+        - email
+      Schema:
+        - AttributeDataType: String
+          Name: email
+          Required: false
+
+  CognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      AllowedOAuthFlows:
+        - code
+        - implicit
+      AllowedOAuthScopes:
+        - email
+        - openid
+      ClientName: sam_api_gateway_cup_auth_cognito_client
+      CallbackURLs:
+        - 'http://localhost:3000/'
+      LogoutURLs:
+        - 'http://localhost:3000/'
+      UserPoolId: !Ref CognitoUserPool
+      SupportedIdentityProviders:
+        - COGNITO
+
+  CognitoDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain: !Ref ApiGateway
+      UserPoolId: !Ref CognitoUserPool
+
+  PreSignupLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      InlineCode: |
+        exports.handler = async (event, context, callback) => {
+          event.response = { autoConfirmUser: true }
+          return event
+        }
+      Handler: index.handler
+      MemorySize: 128
+      Runtime: nodejs10.x
+      Timeout: 3
+
+  LambdaCognitoUserPoolExecutionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt PreSignupLambdaFunction.Arn
+      Principal: cognito-idp.amazonaws.com
+      SourceArn: !Sub 'arn:${AWS::Partition}:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${CognitoUserPool}'
+
+  ###################################
+  # Catalog stack
+  ###################################
 
   CreateNotesFunction:
     Type: AWS::Serverless::Function
@@ -67,3 +146,24 @@ Resources:
           KeyType: 'HASH'
         # - AttributeName: 'sortKey'
         #   KeyType: 'RANGE'
+
+Outputs:
+  Region:
+    Description: 'Region'
+    Value: !Ref AWS::Region
+
+  ApiId:
+    Description: 'API ID'
+    Value: !Ref ApiGateway
+
+  ApiUrl:
+    Description: 'API endpoint URL for Prod environment'
+    Value: !Sub 'https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/dev/'
+
+  CognitoUserPoolId:
+    Description: 'Cognito User Pool Id'
+    Value: !Ref CognitoUserPool
+
+  CognitoUserPoolClientId:
+    Description: 'Cognito User Pool Client Id'
+    Value: !Ref CognitoUserPoolClient
