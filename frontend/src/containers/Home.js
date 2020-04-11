@@ -10,6 +10,7 @@ export default class Home extends Component {
 		this.state = {
 			currentNote: '',
 			isLoading: true,
+			selectedNote: undefined,
 			notes: []
 		};
 	}
@@ -55,13 +56,18 @@ export default class Home extends Component {
 		return API.get('noterCatalogApi', '/note');
 	}
 
-	shareNote(note) {
+	shareNote() {
+		const email = this.state.sharingEmail
+		const payload = {
+			body: { email, note: this.state.selectedNote }
+		}
+		API.post('noterCatalogApi', '/note/share', payload).then(() => this.setState({ selectedNote: undefined }))
+
+	}
+
+	showModal(note) {
 		return function () {
-			const email = "tokyotesthotel@mail.com"
-			const payload = {
-				body: { email, note }
-			}
-			API.post('noterCatalogApi', '/note/share', payload)
+			this.setState({ selectedNote: note })
 		}
 	}
 
@@ -69,7 +75,7 @@ export default class Home extends Component {
 		console.log(notes);
 		return (
 			<ul>
-				{notes.length > 0 && notes.map(({ sortKey, note }) => <li key={sortKey}>{note}<button onClick={this.shareNote(note)}>Share note</button></li>)}
+				{notes.length > 0 && notes.map(({ sortKey, note }) => <li key={sortKey}>{note}<button onClick={this.showModal(note).bind(this)}>Share note</button></li>)}
 			</ul>)
 	}
 
@@ -86,6 +92,10 @@ export default class Home extends Component {
 		this.setState({ currentNote: event.target.value })
 	}
 
+	updateSharingEmail(event) {
+		this.setState({ sharingEmail: event.target.value })
+	}
+
 	renderNotePanel() {
 		return (
 			<div className="test">
@@ -94,6 +104,12 @@ export default class Home extends Component {
 					<textarea value={this.state.currentNote} onChange={this.updateCurrentNote.bind(this)} />
 					<button onClick={this.postNotes.bind(this)}>Add new note</button>
 				</div>
+				{this.state.selectedNote &&
+					<div>
+						<input value={this.state.sharingEmail} onChange={this.updateSharingEmail.bind(this)} />
+						<button onClick={this.shareNote.bind(this)}>Share with</button>
+					</div>
+				}
 				<ListGroup>{!this.state.isLoading && this.renderNotes(this.state)}</ListGroup>
 			</div>
 		);
