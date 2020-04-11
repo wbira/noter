@@ -115,6 +115,23 @@ Resources:
             Path: '/note'
             Method: POST
 
+  ShareNotesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: 'Share-Notes'
+      CodeUri: backend/catalog/share-notes
+      Handler: handler.lambdaHandler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref NotesTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: '/note/share'
+            Method: POST
+
   FetchNotesFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -140,13 +157,13 @@ Resources:
       AttributeDefinitions:
         - AttributeName: 'hashKey'
           AttributeType: 'S'
-        # - AttributeName: 'sortKey'
-        #   AttributeType: 'S'
+        - AttributeName: 'sortKey'
+          AttributeType: 'S'
       KeySchema:
         - AttributeName: 'hashKey'
           KeyType: 'HASH'
-        # - AttributeName: 'sortKey'
-        #   KeyType: 'RANGE'
+        - AttributeName: 'sortKey'
+          KeyType: 'RANGE'
 
 Outputs:
   Region:

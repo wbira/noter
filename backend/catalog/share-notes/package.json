@@ -1,0 +1,14 @@
+{
+  "name": "share-notes",
+  "version": "1.0.0",
+  "description": "",
+  "main": "handler.js",
+  "repository": "",
+  "author": "Waldemar Bira",
+  "license": "MIT",
+  "dependencies": {
+    "uuid": "^3.3.2"
+  },
+  "scripts": {},
+  "devDependencies": {}
+}

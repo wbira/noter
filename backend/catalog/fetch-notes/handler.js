@@ -18,11 +18,13 @@ function createResponse(body, statusCode) {
 exports.lambdaHandler = async (event, context) => {
     console.log("Event:", event)
     console.log("Contex:", context)
+    console.log("Claims:", event.requestContext.authorizer.claims)
+    const { email } = event.requestContext.authorizer.claims
     const params = {
         TableName,
         KeyConditionExpression: 'hashKey = :hkey',
         ExpressionAttributeValues: {
-            ':hkey': 'first'
+            ':hkey': `#USER#${email}`
         }
     }
     let response

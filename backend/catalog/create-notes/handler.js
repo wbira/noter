@@ -18,10 +18,12 @@ function createResponse(body, statusCode) {
 exports.lambdaHandler = async (event, context) => {
     console.log("Event:", event)
     console.log("Ctx:", context)
-
+    console.log("Claims:", event.requestContext.authorizer.claims)
+    const { email } = event.requestContext.authorizer.claims
     const { note } = JSON.parse(event.body);
     const item = {
-        hashKey: uuid(),
+        hashKey: `#USER#${email}`,
+        sortKey: `#NOTE#${uuid()}`,
         note
     }
     const params = {

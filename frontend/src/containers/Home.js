@@ -8,8 +8,9 @@ export default class Home extends Component {
 		super(props);
 
 		this.state = {
+			currentNote: '',
 			isLoading: true,
-			noterCatalogApi: []
+			notes: []
 		};
 	}
 
@@ -31,8 +32,8 @@ export default class Home extends Component {
 			return;
 		} else {
 			try {
-				const noterCatalogApi = await this.noterCatalogApi();
-				this.setState({ noterCatalogApi });
+				const { notes } = await this.getNotes();
+				this.setState({ notes });
 			} catch (e) {
 				console.log(e);
 			}
@@ -41,34 +42,64 @@ export default class Home extends Component {
 		}
 	}
 
-	noterCatalogApi() {
+	postNotes() {
+		const data = {
+			body: {
+				note: this.state.currentNote
+			}
+		}
+		return API.post('noterCatalogApi', '/note', data).then((newNote) => this.setState({ notes: [...this.state.notes, newNote], currentNote: '' }));
+	}
+
+	getNotes() {
 		return API.get('noterCatalogApi', '/note');
 	}
 
-	renderTestAPI(noterCatalogApi) {
-		console.log(noterCatalogApi);
-		return noterCatalogApi.message;
+	shareNote(note) {
+		return function () {
+			const email = "tokyotesthotel@mail.com"
+			const payload = {
+				body: { email, note }
+			}
+			API.post('noterCatalogApi', '/note/share', payload)
+		}
 	}
 
-	renderLander() {
+	renderNotes({ notes }) {
+		console.log(notes);
+		return (
+			<ul>
+				{notes.length > 0 && notes.map(({ sortKey, note }) => <li key={sortKey}>{note}<button onClick={this.shareNote(note)}>Share note</button></li>)}
+			</ul>)
+	}
+
+	renderUnauthorized() {
 		return (
 			<div className="lander">
-				<h1>Test web app</h1>
-				<p>A simple react test app</p>
+				<h1>Unauthorized</h1>
 			</div>
 		);
 	}
 
-	renderTest() {
+	updateCurrentNote(event) {
+		console.log(event)
+		this.setState({ currentNote: event.target.value })
+	}
+
+	renderNotePanel() {
 		return (
 			<div className="test">
 				<PageHeader>Test API call</PageHeader>
-				<ListGroup>{!this.state.isLoading && this.renderTestAPI(this.state.noterCatalogApi)}</ListGroup>
+				<div>
+					<textarea value={this.state.currentNote} onChange={this.updateCurrentNote.bind(this)} />
+					<button onClick={this.postNotes.bind(this)}>Add new note</button>
+				</div>
+				<ListGroup>{!this.state.isLoading && this.renderNotes(this.state)}</ListGroup>
 			</div>
 		);
 	}
 
 	render() {
-		return <div className="Home">{this.props.isAuthenticated ? this.renderTest() : this.renderLander()}</div>;
+		return <div className="Home">{this.props.isAuthenticated ? this.renderNotePanel() : this.renderUnauthorized()}</div>;
 	}
 }
