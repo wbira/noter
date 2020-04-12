@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
-import { Link, withRouter } from 'react-router-dom';
 
-import { Nav, Navbar, NavItem } from 'react-bootstrap';
-import Routes from './Routes';
 import { Auth } from 'aws-amplify';
+import { withAuthenticator } from 'aws-amplify-react'
+import Home from './containers/Home'
 
 import './App.css';
 
@@ -18,13 +17,15 @@ class App extends Component {
 	}
 
 	async componentDidMount() {
+		console.log('App did mount')
 		try {
 			if (await Auth.currentSession()) {
+				console.log('App did mount and has session')
 				this.userHasAuthenticated(true);
 			}
 		} catch (e) {
 			if (e !== 'No current user') {
-				alert(e);
+				console.error(e);
 			}
 		}
 
@@ -35,12 +36,7 @@ class App extends Component {
 		this.setState({ isAuthenticated: authenticated });
 	};
 
-	handleLogout = async event => {
-		await Auth.signOut();
 
-		this.userHasAuthenticated(false);
-		this.props.history.push('/login');
-	};
 
 	render() {
 		const childProps = {
@@ -49,24 +45,10 @@ class App extends Component {
 		};
 		return (
 			<div className="App container">
-				<Navbar fluid collapseOnSelect>
-					<Navbar.Header>
-						<Navbar.Brand>
-							<Link to="/">Test application</Link>
-						</Navbar.Brand>
-						<Navbar.Toggle />
-					</Navbar.Header>
-					<Navbar.Collapse>
-						<Nav pullRight>
-							<NavItem onClick={() => Auth.federatedSignIn()}>Open Hosted UI</NavItem>
-							<NavItem onClick={this.handleLogout}>Logout</NavItem>
-						</Nav>
-					</Navbar.Collapse>
-				</Navbar>
-				<Routes childProps={childProps} />
+				{this.state.isAuthenticated && <Home {...childProps} />}
 			</div>
 		);
 	}
 }
 
-export default withRouter(App);
+export default withAuthenticator(App, { includeGreetings: true });

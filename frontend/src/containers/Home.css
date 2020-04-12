@@ -11,3 +11,44 @@
 .Home .lander p {
 	color: #999;
 }
+
+.Home .item {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+}
+
+.Home .note {
+	margin-bottom: 2rem;
+}
+
+.Home .button-container {
+	display: flex;
+	justify-content: flex-end;
+}
+
+.Home .formButton {
+	margin-right: 15px;
+	margin-top: 10px;
+}
+
+.Home .listButton {
+	height: 36px;
+	min-width: 108px;
+}
+
+.Home .noteText {
+	margin-right: 30px;
+}
+
+.Home .spinnerContainer {
+	display: flex;
+	width: 100%;
+	align-items: center;
+	justify-content: center;
+}
+
+.Home .spinner-grow {
+	height: 5em;
+	width: 5em;
+}

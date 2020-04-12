@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
-import { PageHeader, ListGroup } from 'react-bootstrap';
-import { API, Auth } from 'aws-amplify';
+import Form from 'react-bootstrap/Form'
+import Button from 'react-bootstrap/Button'
+import ListGroup from 'react-bootstrap/ListGroup'
+import Spinner from 'react-bootstrap/Spinner'
+import Modal from 'react-bootstrap/Modal'
+import { API } from 'aws-amplify';
 import './Home.css';
 
 
@@ -18,20 +22,9 @@ export default class Home extends Component {
 		};
 	}
 
-	async isAuth() {
-		const result = await Auth.currentAuthenticatedUser().then(user => {
-			console.log(user);
-			return true;
-		}).catch(e => {
-			console.log(e);
-			return false;
-		});
-
-		return result;
-	}
 
 	async componentDidMount() {
-		const auth = await this.isAuth();
+		const auth = this.props.isAuthenticated
 		if (!auth) {
 			return;
 		} else {
@@ -75,14 +68,20 @@ export default class Home extends Component {
 		}
 	}
 
+	openNoteDetails(sortKey) {
+		alert(sortKey)
+
+	}
+
 	renderNotes({ notes }) {
 		return (
-			<ul>
-				{notes.length > 0 && notes.map(({ sortKey, note }) => <li key={sortKey}>{note}<button onClick={this.showModal(note).bind(this)}>Share note</button></li>)}
-			</ul>)
+			<ListGroup>
+				{notes.length > 0 && notes.map(({ sortKey, note }) => <ListGroup.Item className="item" key={sortKey}><div className="noteText" onClick={this.openNoteDetails.bind(this, sortKey)}>{note}</div><Button variant="light" className="listButton" onClick={this.showModal(note).bind(this)}>Share note</Button></ListGroup.Item>)}
+			</ListGroup>)
 	}
 
 	renderUnauthorized() {
+		console.log("Props", this.props)
 		return (
 			<div className="lander">
 				<h1>Unauthorized</h1>
@@ -102,22 +101,48 @@ export default class Home extends Component {
 		this.setState({ sharingEmail: event.target.value })
 	}
 
+	handleClose() {
+		this.setState({ selectedNote: undefined })
+	}
+
 	renderNotePanel() {
 		return (
 			<div className="test">
-				<PageHeader>Test API call</PageHeader>
-				<div>
-					<textarea value={this.state.currentNote} onChange={this.updateCurrentNote.bind(this)} />
-					<input value={this.state.currentNoteExpirationDays} onChange={this.updateCurrentNoteExpirationDate.bind(this)} />
-					<button onClick={this.postNotes.bind(this)}>Add new note</button>
-				</div>
-				{this.state.selectedNote &&
-					<div>
-						<input value={this.state.sharingEmail} onChange={this.updateSharingEmail.bind(this)} />
-						<button onClick={this.shareNote.bind(this)}>Share with</button>
-					</div>
-				}
-				<ListGroup>{!this.state.isLoading && this.renderNotes(this.state)}</ListGroup>
+				<Form>
+					<Form.Group>
+						<Form.Label>New note</Form.Label>
+						<Form.Control as="textarea" className="note" rows="3" value={this.state.currentNote} onChange={this.updateCurrentNote.bind(this)} />
+						<Form.Control type="number" placeholder="Days to expire" value={this.state.currentNoteExpirationDays} onChange={this.updateCurrentNoteExpirationDate.bind(this)} />
+						<div className="button-container">
+							<Button variant="secondary" className="formButton" onClick={this.postNotes.bind(this)}>Add new note</Button>
+						</div>
+					</Form.Group>
+
+				</Form>
+				<Modal show={this.state.selectedNote} onHide={this.handleClose.bind(this)}>
+					<Modal.Header closeButton>
+						<Modal.Title>Share your note</Modal.Title>
+					</Modal.Header>
+					<Modal.Body>
+						<Form>
+							<Form.Group>
+								<Form.Label>Share your note</Form.Label>
+								<Form.Control type="email" placeholder="e-mail" value={this.state.sharingEmail} onChange={this.updateSharingEmail.bind(this)} />
+								<div className="button-container">
+
+								</div>
+							</Form.Group>
+						</Form>
+					</Modal.Body>
+					<Modal.Footer>
+						<Button variant="light" onClick={this.handleClose.bind(this)}>
+							Close
+          	</Button>
+						<Button variant="secondary" className="formButton" onClick={this.shareNote.bind(this)}>Share</Button>
+					</Modal.Footer>
+				</Modal>
+
+				{!this.state.isLoading ? this.renderNotes(this.state) : <div className="spinnerContainer"><Spinner animation="grow" variant="warning" /></div>}
 			</div>
 		);
 	}
