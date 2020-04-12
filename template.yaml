@@ -164,6 +164,9 @@ Resources:
           KeyType: 'HASH'
         - AttributeName: 'sortKey'
           KeyType: 'RANGE'
+      TimeToLiveSpecification:
+        AttributeName: expirationTime
+        Enabled: true
 
 Outputs:
   Region:

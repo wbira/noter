@@ -3,12 +3,15 @@ import { PageHeader, ListGroup } from 'react-bootstrap';
 import { API, Auth } from 'aws-amplify';
 import './Home.css';
 
+
+
 export default class Home extends Component {
 	constructor(props) {
 		super(props);
 
 		this.state = {
 			currentNote: '',
+			currentNoteExpirationDays: '',
 			isLoading: true,
 			selectedNote: undefined,
 			notes: []
@@ -46,10 +49,11 @@ export default class Home extends Component {
 	postNotes() {
 		const data = {
 			body: {
-				note: this.state.currentNote
+				note: this.state.currentNote,
+				expirationDays: this.state.currentNoteExpirationDays
 			}
 		}
-		return API.post('noterCatalogApi', '/note', data).then((newNote) => this.setState({ notes: [...this.state.notes, newNote], currentNote: '' }));
+		return API.post('noterCatalogApi', '/note', data).then((newNote) => this.setState({ notes: [...this.state.notes, newNote], currentNote: '', currentNoteExpirationDays: '' }));
 	}
 
 	getNotes() {
@@ -72,7 +76,6 @@ export default class Home extends Component {
 	}
 
 	renderNotes({ notes }) {
-		console.log(notes);
 		return (
 			<ul>
 				{notes.length > 0 && notes.map(({ sortKey, note }) => <li key={sortKey}>{note}<button onClick={this.showModal(note).bind(this)}>Share note</button></li>)}
@@ -88,8 +91,11 @@ export default class Home extends Component {
 	}
 
 	updateCurrentNote(event) {
-		console.log(event)
 		this.setState({ currentNote: event.target.value })
+	}
+
+	updateCurrentNoteExpirationDate(event) {
+		this.setState({ currentNoteExpirationDays: event.target.value })
 	}
 
 	updateSharingEmail(event) {
@@ -102,6 +108,7 @@ export default class Home extends Component {
 				<PageHeader>Test API call</PageHeader>
 				<div>
 					<textarea value={this.state.currentNote} onChange={this.updateCurrentNote.bind(this)} />
+					<input value={this.state.currentNoteExpirationDays} onChange={this.updateCurrentNoteExpirationDate.bind(this)} />
 					<button onClick={this.postNotes.bind(this)}>Add new note</button>
 				</div>
 				{this.state.selectedNote &&

@@ -1,47 +1,13 @@
 'use strict';
 
-const AWS = require("aws-sdk");
-const client = new AWS.DynamoDB.DocumentClient();;
-const TableName = process.env.TABLE_NAME
+const { handleFetchNotes } = require('./service')
+const NoteStorage = require('./storage')
+
+const storage = new NoteStorage(process.env.TABLE_NAME)
 
 
-function createResponse(body, statusCode) {
-    return {
-        body,
-        headers: {
-            'Access-Control-Allow-Origin': '*'
-        },
-        statusCode
-    }
-}
-
-exports.lambdaHandler = async (event, context) => {
+exports.lambdaHandler = async (event) => {
     console.log("Event:", event)
-    console.log("Contex:", context)
     console.log("Claims:", event.requestContext.authorizer.claims)
-    const { email } = event.requestContext.authorizer.claims
-    const params = {
-        TableName,
-        KeyConditionExpression: 'hashKey = :hkey',
-        ExpressionAttributeValues: {
-            ':hkey': `#USER#${email}`
-        }
-    }
-    let response
-    try {
-        const result = await client.query(params).promise()
-        console.log("Result", result)
-        if (result.Items) {
-            response = createResponse(JSON.stringify({
-                notes: result.Items,
-            }), 200)
-        } else {
-            response = createResponse("Not Found", 404)
-        }
-    } catch (err) {
-        console.log(err);
-        return err;
-    }
-
-    return response
+    return handleFetchNotes(event, storage)
 };
