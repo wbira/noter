@@ -184,6 +184,63 @@ Resources:
       TimeToLiveSpecification:
         AttributeName: expirationTime
         Enabled: true
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
+
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow #allow lambda to assume this role
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: '/'
+      Policies:
+        - PolicyName: LambdaRolePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow #allow to write logs to cloudwatch
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
+              - Effect: Allow #allow lambda to read from the event stream
+                Action:
+                  - dynamodb:DescribeStream
+                  - dynamodb:GetRecords
+                  - dynamodb:GetShardIterator
+                  - dynamodb:ListStreams
+                Resource: '*'
+
+  NotifyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: 'Notify'
+      CodeUri: backend/notify
+      Handler: handler.lambdaHandler
+      Policies:
+        - AWSLambdaDynamoDBExecutionRole
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - 'ses:SendEmail'
+                - 'ses:SendRawEmail'
+              Resource: '*'
+      Events:
+        Stream:
+          Type: DynamoDB
+          Properties:
+            BatchSize: 1
+            StartingPosition: TRIM_HORIZON
+            Stream: !GetAtt NotesTable.StreamArn
 
 Outputs:
   Region:
