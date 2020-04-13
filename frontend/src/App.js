@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-
+import Button from 'react-bootstrap/Button'
 import { Auth } from 'aws-amplify';
-import { withAuthenticator } from 'aws-amplify-react'
 import Home from './containers/Home'
 
 import './App.css';
+import Signup from './containers/Signup';
+import Login from './containers/Login';
 
 class App extends Component {
 	constructor(props) {
@@ -19,8 +20,9 @@ class App extends Component {
 	async componentDidMount() {
 		console.log('App did mount')
 		try {
-			if (await Auth.currentSession()) {
-				console.log('App did mount and has session')
+			const session = await Auth.currentSession()
+			if (session) {
+				console.log('App did mount and has session', session)
 				this.userHasAuthenticated(true);
 			}
 		} catch (e) {
@@ -36,6 +38,12 @@ class App extends Component {
 		this.setState({ isAuthenticated: authenticated });
 	};
 
+	handleLogout = async event => {
+		await Auth.signOut();
+
+		this.userHasAuthenticated(false);
+		//this.props.history.push('/login');
+	};
 
 
 	render() {
@@ -45,10 +53,14 @@ class App extends Component {
 		};
 		return (
 			<div className="App container">
+				<Button onClick={this.handleLogout.bind(this)}>Logout</Button>
+				<Signup {...childProps} />
+				<Login {...childProps} />
 				{this.state.isAuthenticated && <Home {...childProps} />}
 			</div>
+
 		);
 	}
 }
-
-export default withAuthenticator(App, { includeGreetings: true });
+export default App;
+//export default withAuthenticator(App, { includeGreetings: true });
