@@ -24,6 +24,7 @@ export default class Home extends Component {
 
 
 	async componentDidMount() {
+		debugger
 		const auth = this.props.isAuthenticated
 		if (!auth) {
 			return;
@@ -142,7 +143,7 @@ export default class Home extends Component {
 					</Modal.Footer>
 				</Modal>
 
-				{!this.state.isLoading ? this.renderNotes(this.state) : <div className="spinnerContainer"><Spinner animation="grow" variant="warning" /></div>}
+				{!this.state.isLoading ? this.renderNotes(this.state) : <div className="spinnerContainer"><Spinner animation="grow" variant="primary" /></div>}
 			</div>
 		);
 	}

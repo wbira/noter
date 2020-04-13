@@ -1,23 +1,19 @@
-import React, { Component, Fragment } from 'react';
-import { Link, withRouter } from 'react-router-dom';
+import React, { Component } from 'react';
+import { Link, withRouter, useLocation } from 'react-router-dom';
+import Button from 'react-bootstrap/Button'
 import Navbar from 'react-bootstrap/Navbar'
-import Nav from 'react-bootstrap/Nav'
 import NavItem from 'react-bootstrap/NavItem'
-
+import Routes from './Routes';
 import { Auth } from 'aws-amplify';
-import Home from './containers/Home'
 
 import './App.css';
-import Signup from './containers/Signup';
-import Login from './containers/Login';
-
 class App extends Component {
 	constructor(props) {
 		super(props);
 
 		this.state = {
 			isAuthenticated: false,
-			isAuthenticating: true
+			isAuthenticating: true,
 		};
 	}
 
@@ -52,7 +48,8 @@ class App extends Component {
 	render() {
 		const childProps = {
 			isAuthenticated: this.state.isAuthenticated,
-			userHasAuthenticated: this.userHasAuthenticated
+			userHasAuthenticated: this.userHasAuthenticated,
+			...this.props
 		};
 		return (
 			<div className="App container">
@@ -60,25 +57,24 @@ class App extends Component {
 					<Navbar.Brand>
 						<Link to="/">Noter</Link>
 					</Navbar.Brand>
-					<Navbar.Toggle />
-					<Navbar.Collapse>
-						<Nav>
-							{this.state.isAuthenticated && (
-								<NavItem onClick={this.handleLogout}>Logout</NavItem>
-							)}
-						</Nav>
-					</Navbar.Collapse>
+					{this.state.isAuthenticated && (
+						<NavItem ><Button onClick={this.handleLogout}>Logout</Button></NavItem>
+					)}
+
 
 				</Navbar>
 
 
-				{!this.state.isAuthenticated &&
+				{/* {
+					!this.state.isAuthenticated &&
 					<div className="authContainer">
 						<Signup className="authForm" {...childProps} />
 						<Login className="authForm" {...childProps} />
-					</div>}
-				{this.state.isAuthenticated && <Home {...childProps} />}
-			</div>
+					</div>
+				} */}
+				{!this.state.isAuthenticating &&
+					<Routes childProps={childProps} />}
+			</div >
 
 		);
 	}
