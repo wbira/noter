@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import Form from 'react-bootstrap/Form'
+import Alert from 'react-bootstrap/Alert'
 import Button from 'react-bootstrap/Button'
 import ListGroup from 'react-bootstrap/ListGroup'
 import Spinner from 'react-bootstrap/Spinner'
 import Modal from 'react-bootstrap/Modal'
 import { API } from 'aws-amplify';
 import './Home.css';
-
+import { validateEmail } from '../validators/email'
 
 
 export default class Home extends Component {
@@ -18,13 +19,14 @@ export default class Home extends Component {
 			currentNoteExpirationDays: '',
 			isLoading: true,
 			selectedNote: undefined,
+			errorMessage: '',
+			errorModalMessage: '',
 			notes: []
 		};
 	}
 
 
 	async componentDidMount() {
-		debugger
 		const auth = this.props.isAuthenticated
 		if (!auth) {
 			return;
@@ -40,14 +42,26 @@ export default class Home extends Component {
 		}
 	}
 
-	postNotes() {
+	addNewNote() {
+		const note = this.state.currentNote;
+
+		if (!note) {
+			const errorMessage = 'Please add some text to new note'
+			this.setState({ errorMessage })
+			return;
+		}
+
 		const data = {
 			body: {
-				note: this.state.currentNote,
+				note,
 				expirationDays: this.state.currentNoteExpirationDays
 			}
 		}
-		return API.post('noterCatalogApi', '/note', data).then((newNote) => this.setState({ notes: [...this.state.notes, newNote], currentNote: '', currentNoteExpirationDays: '' }));
+		this.postNote(data)
+	}
+
+	postNote(data) {
+		return API.post('noterCatalogApi', '/note', data).then((newNote) => this.setState({ notes: [...this.state.notes, newNote], currentNote: '', currentNoteExpirationDays: '', errorMessage: '' }));
 	}
 
 	getNotes() {
@@ -56,10 +70,17 @@ export default class Home extends Component {
 
 	shareNote() {
 		const email = this.state.sharingEmail
+
+		if (!validateEmail(email)) {
+			const errorModalMessage = 'Please type valid email address.'
+			this.setState({ errorModalMessage })
+			return;
+		}
 		const payload = {
 			body: { email, note: this.state.selectedNote }
 		}
-		API.post('noterCatalogApi', '/note/share', payload).then(() => this.setState({ selectedNote: undefined }))
+		API.post('noterCatalogApi', '/note/share', payload).then(() => this.setState({ selectedNote: undefined, errorModalMessage: '' }))
+
 
 	}
 
@@ -115,10 +136,12 @@ export default class Home extends Component {
 						<Form.Control as="textarea" className="note" rows="3" value={this.state.currentNote} onChange={this.updateCurrentNote.bind(this)} />
 						<Form.Control type="number" placeholder="Days to expire" value={this.state.currentNoteExpirationDays} onChange={this.updateCurrentNoteExpirationDate.bind(this)} />
 						<div className="button-container">
-							<Button variant="secondary" className="formButton" onClick={this.postNotes.bind(this)}>Add new note</Button>
+							<Button variant="secondary" className="formButton" onClick={this.addNewNote.bind(this)}>Add new note</Button>
 						</div>
 					</Form.Group>
-
+					<Alert variant="danger" show={this.state.errorMessage}>
+						<p dangerouslySetInnerHTML={{ __html: this.state.errorMessage }} />
+					</Alert>
 				</Form>
 				<Modal show={this.state.selectedNote} onHide={this.handleClose.bind(this)}>
 					<Modal.Header closeButton>
@@ -129,9 +152,10 @@ export default class Home extends Component {
 							<Form.Group>
 								<Form.Label>Share your note</Form.Label>
 								<Form.Control type="email" placeholder="e-mail" value={this.state.sharingEmail} onChange={this.updateSharingEmail.bind(this)} />
-								<div className="button-container">
+								<Alert variant="danger" show={this.state.errorModalMessage}>
+									<p dangerouslySetInnerHTML={{ __html: this.state.errorModalMessage }} />
+								</Alert>
 
-								</div>
 							</Form.Group>
 						</Form>
 					</Modal.Body>

@@ -28,8 +28,6 @@ export default class Login extends Component {
     return { validEmail, validPassword }
   }
 
-
-
   handleChange = event => {
     this.setState({
       [event.target.id]: event.target.value
@@ -39,11 +37,11 @@ export default class Login extends Component {
   prepareErrorMessage(validEmail, validPassword) {
     let message = ''
     if (!validEmail) {
-      message += "Check your email <br/>"
+      message += "Please add valid email address <br/>"
     }
 
     if (!validPassword) {
-      message += "Check your password"
+      message += "Password should have at least 8 chars"
     }
 
     return message
@@ -63,7 +61,6 @@ export default class Login extends Component {
       const errorMessage = this.prepareErrorMessage(validEmail, validPassword)
       this.setState({ errorMessage })
     }
-
   };
 
   async signIn() {
