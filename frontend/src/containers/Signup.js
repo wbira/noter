@@ -1,4 +1,5 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
+import Card from 'react-bootstrap/Card'
 import Form from 'react-bootstrap/Form'
 import LoaderButton from '../components/LoaderButton';
 import { Auth } from 'aws-amplify';
@@ -60,29 +61,38 @@ export default class Signup extends Component {
 
   renderForm() {
     return (
-      <Form onSubmit={this.handleSubmit}>
-        <Form.Group controlId="email" bsSize="large">
-          <Form.Label>Email</Form.Label>
-          <Form.Control autoFocus type="email" value={this.state.email} onChange={this.handleChange} />
-        </Form.Group>
-        <Form.Group controlId="password" bsSize="large">
-          <Form.Label>Password</Form.Label>
-          <Form.Control value={this.state.password} onChange={this.handleChange} type="password" />
-        </Form.Group>
-        <Form.Group controlId="confirmPassword" bsSize="large">
-          <Form.Label>Confirm Password</Form.Label>
-          <Form.Control value={this.state.confirmPassword} onChange={this.handleChange} type="password" />
-        </Form.Group>
-        <LoaderButton
-          block
-          bsSize="large"
-          disabled={!this.validateForm()}
-          type="submit"
-          isLoading={this.state.isLoading}
-          text="Signup"
-          loadingText="Signing up…"
-        />
-      </Form>
+      <Card>
+        <Card.Body>
+          <Card.Title>Sign up</Card.Title>
+          <Card.Text>
+            <Form onSubmit={this.handleSubmit}>
+              <Form.Group controlId="email" bsSize="large">
+                <Form.Label>Email</Form.Label>
+                <Form.Control autoFocus type="email" value={this.state.email} onChange={this.handleChange} />
+              </Form.Group>
+              <Form.Group controlId="password" bsSize="large">
+                <Form.Label>Password</Form.Label>
+                <Form.Control value={this.state.password} onChange={this.handleChange} type="password" />
+              </Form.Group>
+              <Form.Group controlId="confirmPassword" bsSize="large">
+                <Form.Label>Confirm Password</Form.Label>
+                <Form.Control value={this.state.confirmPassword} onChange={this.handleChange} type="password" />
+              </Form.Group>
+              <LoaderButton
+                block
+                bsSize="large"
+                disabled={!this.validateForm()}
+                type="submit"
+                isLoading={this.state.isLoading}
+                text="Signup"
+                loadingText="Signing up…"
+              />
+            </Form>
+
+          </Card.Text>
+        </Card.Body>
+      </Card>
+
     );
   }
 

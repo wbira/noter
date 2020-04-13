@@ -5,3 +5,13 @@
 .App .navbar-brand {
 	font-weight: bold;
 }
+
+.App .authContainer {
+	display: flex;
+	justify-content: space-around;
+}
+.App .authForm {
+	width: 300px;
+}
+
+

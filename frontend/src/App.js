@@ -1,5 +1,9 @@
-import React, { Component } from 'react';
-import Button from 'react-bootstrap/Button'
+import React, { Component, Fragment } from 'react';
+import { Link, withRouter } from 'react-router-dom';
+import Navbar from 'react-bootstrap/Navbar'
+import Nav from 'react-bootstrap/Nav'
+import NavItem from 'react-bootstrap/NavItem'
+
 import { Auth } from 'aws-amplify';
 import Home from './containers/Home'
 
@@ -18,7 +22,6 @@ class App extends Component {
 	}
 
 	async componentDidMount() {
-		console.log('App did mount')
 		try {
 			const session = await Auth.currentSession()
 			if (session) {
@@ -53,14 +56,32 @@ class App extends Component {
 		};
 		return (
 			<div className="App container">
-				<Button onClick={this.handleLogout.bind(this)}>Logout</Button>
-				<Signup {...childProps} />
-				<Login {...childProps} />
+				<Navbar>
+					<Navbar.Brand>
+						<Link to="/">Noter</Link>
+					</Navbar.Brand>
+					<Navbar.Toggle />
+					<Navbar.Collapse>
+						<Nav>
+							{this.state.isAuthenticated && (
+								<NavItem onClick={this.handleLogout}>Logout</NavItem>
+							)}
+						</Nav>
+					</Navbar.Collapse>
+
+				</Navbar>
+
+
+				{!this.state.isAuthenticated &&
+					<div className="authContainer">
+						<Signup className="authForm" {...childProps} />
+						<Login className="authForm" {...childProps} />
+					</div>}
 				{this.state.isAuthenticated && <Home {...childProps} />}
 			</div>
 
 		);
 	}
 }
-export default App;
-//export default withAuthenticator(App, { includeGreetings: true });
+export default withRouter(App);
+
