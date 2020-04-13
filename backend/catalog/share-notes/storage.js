@@ -10,9 +10,10 @@ class NoteStorage {
 
   async shareNote(sharingEmail, note, expirationTime) {
     const item = {
-      hashKey: `#USER#${sharingEmail}`,
-      sortKey: `#NOTE#${uuid()}`,
-      note
+      hashKey: sharingEmail,
+      sortKey: uuid(),
+      note,
+      shared: true
     };
 
     if (expirationTime) {

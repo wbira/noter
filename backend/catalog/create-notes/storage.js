@@ -10,9 +10,10 @@ class NoteStorage {
 
   async persistNote(email, note, expirationTime) {
     const item = {
-      hashKey: `#USER#${email}`,
-      sortKey: `#NOTE#${uuid()}`,
-      note
+      hashKey: email,
+      sortKey: uuid(),
+      note,
+      shared: false
     }
 
     if (expirationTime) {

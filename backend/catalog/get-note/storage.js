@@ -8,15 +8,16 @@ class NoteStorage {
     this.dynamoClient = new AWS.DynamoDB.DocumentClient();
   }
 
-  async queryNotes(email) {
+  async getNote(email, noteId) {
+    console.log(email, noteId)
     const params = {
       TableName: this.tableName,
-      KeyConditionExpression: 'hashKey = :hkey',
-      ExpressionAttributeValues: {
-        ':hkey': email
+      Key: {
+        hashKey: email,
+        sortKey: noteId
       }
     }
-    return this.dynamoClient.query(params).promise();
+    return this.dynamoClient.get(params).promise();
   }
 }
 

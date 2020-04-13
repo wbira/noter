@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Form from 'react-bootstrap/Form'
 import Alert from 'react-bootstrap/Alert'
+import Badge from 'react-bootstrap/Badge'
 import Button from 'react-bootstrap/Button'
 import ListGroup from 'react-bootstrap/ListGroup'
 import Spinner from 'react-bootstrap/Spinner'
@@ -91,14 +92,18 @@ export default class Home extends Component {
 	}
 
 	openNoteDetails(sortKey) {
-		alert(sortKey)
-
+		this.props.history.push(`detail/${sortKey}`)
 	}
 
 	renderNotes({ notes }) {
 		return (
 			<ListGroup>
-				{notes.length > 0 && notes.map(({ sortKey, note }) => <ListGroup.Item className="item" key={sortKey}><div className="noteText" onClick={this.openNoteDetails.bind(this, sortKey)}>{note}</div><Button variant="light" className="listButton" onClick={this.showModal(note).bind(this)}>Share note</Button></ListGroup.Item>)}
+				{notes.length > 0 && notes.map(({ sortKey, note, shared }) =>
+					<ListGroup.Item className="item" key={sortKey}>
+						<div className="noteText" onClick={this.openNoteDetails.bind(this, sortKey)}>{note}</div>
+						{!shared && <Button variant="light" className="listButton" onClick={this.showModal(note).bind(this)}>Share note</Button>}
+						{shared && <Badge variant="success">Shared with you</Badge>}
+					</ListGroup.Item>)}
 			</ListGroup>)
 	}
 

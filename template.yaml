@@ -149,6 +149,23 @@ Resources:
             Path: '/note'
             Method: GET
 
+  GetNoteFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: 'Get-Note'
+      CodeUri: backend/catalog/get-note
+      Handler: handler.lambdaHandler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref NotesTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: '/note/details/{noteId}'
+            Method: GET
+
   NotesTable:
     Type: AWS::DynamoDB::Table
     Properties:
