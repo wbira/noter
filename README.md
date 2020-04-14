@@ -35,6 +35,9 @@ All required data from cloudformation stack should be displayed there. Then, whe
 make run-frontend
 ```
 
+If you wish to deploy frontend code to AWS, you need to create S3 bucket manually, with proper website hosting settings, and copy fronted build there.
+Also it required proper setting for redirect rules, cause frontend is using client-side routing. I will automate it soon :)
+
 
 ### TODO
 There are a couple things to improve:
