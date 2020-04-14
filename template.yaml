@@ -241,6 +241,10 @@ Resources:
             BatchSize: 1
             StartingPosition: TRIM_HORIZON
             Stream: !GetAtt NotesTable.StreamArn
+      Environment:
+        Variables:
+          BASE_URL: 'http://localhost:3000'
+          SOURCE_MAIL: 'waldek.bira@gmail.com'
 
 Outputs:
   Region:
