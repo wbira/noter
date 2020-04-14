@@ -108,7 +108,6 @@ export default class Home extends Component {
 	}
 
 	renderUnauthorized() {
-		console.log("Props", this.props)
 		return (
 			<div className="lander">
 				<h1>Unauthorized</h1>

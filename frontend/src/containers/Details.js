@@ -9,7 +9,6 @@ import './Details.css'
 
 
 function NoteDetails(item) {
-  console.log("item", item)
   const { note, shared, hashKey, expirationTime } = item
   return (
     <Card className="noteDetails">

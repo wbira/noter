@@ -21,7 +21,6 @@ class App extends Component {
 		try {
 			const session = await Auth.currentSession()
 			if (session) {
-				console.log('App did mount and has session', session)
 				this.userHasAuthenticated(true);
 			}
 		} catch (e) {
