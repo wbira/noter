@@ -10,9 +10,6 @@ Globals:
         TABLE_NAME: !Ref NotesTable
 
 Resources:
-  ###################################
-  # Base stack
-  ###################################
   ApiGateway:
     Type: AWS::Serverless::Api
     Properties:
@@ -27,10 +24,6 @@ Resources:
         Authorizers:
           CognitoUserPoolAuthorizer:
             UserPoolArn: !GetAtt CognitoUserPool.Arn
-
-  ###################################
-  # Account stack
-  ###################################
 
   CognitoUserPool:
     Type: AWS::Cognito::UserPool
@@ -93,10 +86,6 @@ Resources:
       FunctionName: !GetAtt PreSignupLambdaFunction.Arn
       Principal: cognito-idp.amazonaws.com
       SourceArn: !Sub 'arn:${AWS::Partition}:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${CognitoUserPool}'
-
-  ###################################
-  # Catalog stack
-  ###################################
 
   CreateNotesFunction:
     Type: AWS::Serverless::Function
@@ -186,38 +175,6 @@ Resources:
         Enabled: true
       StreamSpecification:
         StreamViewType: NEW_IMAGE
-
-  LambdaRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow #allow lambda to assume this role
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      Path: '/'
-      Policies:
-        - PolicyName: LambdaRolePolicy
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow #allow to write logs to cloudwatch
-                Action:
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: arn:aws:logs:*:*:*
-              - Effect: Allow #allow lambda to read from the event stream
-                Action:
-                  - dynamodb:DescribeStream
-                  - dynamodb:GetRecords
-                  - dynamodb:GetShardIterator
-                  - dynamodb:ListStreams
-                Resource: '*'
 
   NotifyFunction:
     Type: AWS::Serverless::Function

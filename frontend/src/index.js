@@ -7,6 +7,15 @@ import config from './config';
 import registerServiceWorker from './registerServiceWorker';
 import './index.css';
 
+import { createBrowserHistory } from 'history';
+
+const history = createBrowserHistory();
+// eslint-disable-line
+const path = (/#!(\/.*)$/.exec(window.location.hash) || [])[1];
+if (path) {
+	history.replace(path);
+}
+
 Amplify.configure({
 	Auth: {
 		mandatorySignIn: true,

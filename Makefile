@@ -9,3 +9,9 @@ run-create-note:
 
 run-fetch-note:
 	sam local invoke -e backend/catalog/events/event.json -t ./template.yaml FetchNotesFunction
+
+build-frontend:
+	npm run build --prefix ./frontend
+
+deploy-frontend: build-frontend
+	aws s3 sync ./frontend/build s3://noter.hosting.wb
