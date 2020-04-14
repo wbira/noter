@@ -10,6 +10,9 @@ run-create-note:
 run-fetch-note:
 	sam local invoke -e backend/catalog/events/event.json -t ./template.yaml FetchNotesFunction
 
+run-frontend:
+	npm run start --prefix ./frontend
+
 build-frontend:
 	npm run build --prefix ./frontend
 

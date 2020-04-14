@@ -214,7 +214,7 @@ Outputs:
 
   ApiUrl:
     Description: 'API endpoint URL for Prod environment'
-    Value: !Sub 'https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/dev/'
+    Value: !Sub 'https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/Stage/'
 
   CognitoUserPoolId:
     Description: 'Cognito User Pool Id'
